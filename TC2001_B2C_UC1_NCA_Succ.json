@@ -1,0 +1,280 @@
+{
+
+    "category": "BHARTI_TELE",
+
+    "description": "Voice DSL Combo Connect request",
+
+    "externalId": "UC1_CONNECT_01244000328",
+               "priority": "5",
+
+    "@type": "Connect",
+
+    "Order_source": "ATOM",
+
+    "relatedParty": [
+
+    
+
+    {
+
+        "id": "GH5012696",
+
+        "customer_name": "Bharti",
+
+        "customer_address": "PlotNo,StreetNo,Locality,City,Pincode",
+
+        "Static_IP_Profile": "N",
+
+        "contact_no": "01244002367",
+
+        "customer_email": "abc@nokia.com",
+
+        "fso_code": "123",
+
+        "customer_segment": "PREMIUM",
+
+        "customer_type": "PREMIUM",
+
+        "customer_class": "PREMIUM",
+
+        "cafno": "Test123",
+
+        "product_type": "FLCOMBO",
+
+        "role": "customer"
+
+    }],
+
+    "serviceOrderItem": [{
+
+        "id": "1",
+
+        "action": "CONNECT",
+
+        "@type": "CONNECT",
+
+        "serviceOrderItemRelationship": [],
+
+        "service": {
+
+            "serviceOrderItem": [],
+
+            "serviceCharacteristic": [{
+
+                    "name": "NOTE",
+
+                    "value": "connect"
+
+                },
+
+                {
+
+                    "name": "STD_CODE",
+
+                    "value": "0124"
+
+                },
+
+                
+
+                {
+
+                    "name": "MSU_CODE",
+
+                    "value": "153"
+
+                },
+
+                {
+
+                    "name": "CIRCLE_NAME",
+
+                    "value": "HR"
+
+                },
+
+                {
+
+                        "name": "CIRCLE_ID",
+
+                        "value": "108"
+
+                    },
+
+                {
+
+                    "name": "CITY_NAME",
+
+                    "value": "Gurgaon"
+
+                },
+
+                {
+
+                    "name": "RSU_CODE",
+
+                    "value": "0AO"
+
+                },
+
+                {
+
+                    "name": "NET_PD",
+
+                    "value": "70123456789"
+
+                },
+
+                {
+
+                    "name": "ACCESS_NUMBER_VOIP",
+
+                    "value": "01244000328"
+
+                },
+
+                {
+
+                    "name": "ACCESS_NUMBER_DSL",
+
+                    "value": "01244000328_dsl"
+
+                },
+
+                {
+
+                    "name": "ACCESS_TYPE",
+
+                    "value": "FTTHOwn"
+
+                },
+
+                {
+
+                    "name": "TARIFF_PLAN",
+
+                    "value": "500MB"
+
+                },
+
+                {
+
+                    "name": "BANDWIDTH",
+
+                    "value": "1024"
+
+                },
+
+                {
+
+                    "name": "MODE",
+
+                    "value": "routed"
+
+                },
+
+                {
+
+                    "name": "TAG_STATUS",
+
+                    "value": "Test"
+
+                },
+
+                
+
+                {
+
+                    "name": "TECHNICAL_PLAN",
+
+                    "value": "FTTH-500MB-unl"
+
+                },
+
+                {
+
+                    "name": "STATIC_IP_COUNT",
+
+                    "value": "0"
+
+                },
+
+                {
+
+                    "name": "SALES_INPUT",
+
+                    "value": "Test"
+
+                },
+
+                
+
+                {
+
+                    "name": "NE_NAME",
+
+                    "value": "0AO33010701"
+
+                },      
+                 {
+                    "name": "VOICE_IP",
+                    "value": "10.31.248.108"
+                },
+            
+                {
+                    "name": "SUBNET_MASK_IPAM",
+                    "value": "255.255.248.0"
+                },
+                {
+                    "name": "GATEWAY_IP_IPAM",
+                    "value": "10.126.144.1:22"
+                },
+
+                 {
+                    "name": "VOICE_IP_IPAM",
+                    "value": "10.126.145.232"
+                },
+               
+                 {
+                        "name": "ORDER_SOURCE",
+                        "value": "ATOM"
+                    },
+
+                     {
+                        "name": "TMS_DEFAULTGATEWAY",
+                        "value": "10.126.144.1:22"
+                    },
+                     {
+                        "name": "TMS_EXTIPADDRESS",
+                        "value": "10.126.145.232"
+                    },
+                     {
+                        "name": "TMS_SUBNETMASK",
+                        "value": "255.255.252.0"
+                    },
+                {
+                    "name": "WAN_IP",
+                    "value": "10.126.145.232"
+                }
+
+
+            ],
+
+            "serviceSpecification": {
+
+                "id": "1",
+
+                "name": "CFS_COMBO",
+
+                "version": "1.0"
+
+            }
+
+        }
+
+    }]
+
+}
+
+
+
