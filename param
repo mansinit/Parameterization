@@ -3,9 +3,12 @@ import ast
 import pandas as pd
 import re
 from openpyxl import load_workbook
-f=open('TC2001_B2C_UC1_NCA_Succ.json')
-excel_file="TC2001_B2C_UC1_NCA_Sarang_wo_param.xlsx"
-
+#f=open('TC2001_B2C_UC1_NCA_Succ.json')
+#f=open("uc5zte.json")
+f=open("3314.json")
+#excel_file="TC2001_B2C_UC1_NCA_Sarang_wo_param.xlsx"
+#excel_file="TC2201_B2C_UC5_DISCON_Succ.xlsx"
+excel_file="TC2009_B2C_UC18_TECHCHG.xlsx"
 file = pd.ExcelFile(excel_file,engine='openpyxl')
 df=pd.DataFrame(pd.read_excel(file,sheet_name=file.sheet_names[0],engine='openpyxl'))
 data=json.load(f)
@@ -15,7 +18,14 @@ data=(dict(data))
 
 print(data.keys())
 
+my_variables={}
+with open("var.txt") as var:
+    for line in var:
+        if not line.isspace():
+            kv=line.strip("\n").replace('"','').split("=")
+            my_variables[kv[0]]=kv[1]
 
+print(my_variables)
 def json_extract(obj, key):
     """Recursively fetch values from nested JSON."""
     arr = []
@@ -40,31 +50,123 @@ list_names=((json_extract(data,'name')))
 list_values=((json_extract(data,'value')))
 dict_final={}
 for x,y in zip(list_names,list_values):
-    dict_final[x.upper()]=y
+    if "TMS" not in x:
+        if y=="PlotNo,StreetNo,Locality,City,Pincode":
+            print("**********")
+            y="PlotNo\,StreetNo\,Locality\,City\,Pincode"
+        dict_final[x.upper()]=y
+
 for key in data['relatedParty'][0].keys():
     dict_final[key.upper()]=((json_extract(data,key)))[0]
-print(dict_final)
- 
-
-
+dict_final['description'.upper()]=((json_extract(data,'description')))[0]
+#print(dict_final)
+sub_id=dict_final['ACCESS_NUMBER_VOIP'][1:]
+for key in dict_final.keys():
+    if "ADDRESS" in key and dict_final[key]=="PlotNo,StreetNo,Locality,City,Pincode":
+        print(key)
+        dict_final[key]="PlotNo\\,StreetNo\\,Locality\\,City\\,Pincode"
 #load excel file
 workbook = load_workbook(filename=excel_file)
- 
+new_variables={}
 #open workbook
 sheet = workbook.active
- 
-
+def technical_plan(tech_name,tech_value):
+    x= tech_value.split("-")[1]
+    y=re.findall(r'\d+',x)
+    tech="TECHNICAL_PLAN"+"_"+y[0]
+    if tech in my_variables.keys() and my_variables[tech]==tech_value:
+        return tech
+    else:
+        my_variables[tech]=tech_value
+        new_variables[tech]=tech_value
+        return tech
+request_id=0
+circuit_Ref_id=""
+tech_plan=""
 for row in range(6,df.shape[0]):
     if sheet[row][8].value in dict_final.keys():
-        if sheet[row][9].value==dict_final[sheet[row][8].value]:
-            sheet[row][9].value="${"+sheet[row][8].value+"}"
+        if "TECHNICAL_PLAN" in sheet[row][8].value:
+            tech=technical_plan(sheet[row][8].value,sheet[row][9].value)       
+            sheet[row][9].value="${"+tech+"}"
+        elif "TARIFF_PLAN" in sheet[row][8].value:
+            y=re.findall(r'\d+',sheet[row][9].value)
+            tariff=sheet[row][8].value+"_"+y[0]
+            if tariff in my_variables.keys() and my_variables[tariff]==sheet[row][9].value:
+                sheet[row][9].value="${"+tariff+"}"
+            else:
+                my_variables[tariff]=sheet[row][9].value
+                new_variables[tariff]=sheet[row][9].value
+                sheet[row][9].value="${"+tariff+"}"
+        elif sheet[row][9].value==dict_final[sheet[row][8].value]:
+            if sheet[row][8].value in my_variables.keys() and my_variables[sheet[row][8].value]==sheet[row][9].value:
+                sheet[row][9].value="${"+sheet[row][8].value+"}"
+            elif sheet[row][8].value not in my_variables.keys():
+                my_variables[sheet[row][8].value]=sheet[row][9].value
+                new_variables[sheet[row][8].value]=sheet[row][9].value
+                sheet[row][9].value="${"+sheet[row][8].value+"}"
+
+        #if sheet[row][8].value,sheet[row][9].value not in my_variable:
+        #        my_variable.append(sheet[row][8].value,sheet[row][9].value)
+        #if the name is same but value isn't create uc* variable name and then append it and add that only in excel
+        #sheet[row][9].value="${"+sheet[row][8].value+"}"
     else:
-        for txt in dict_final.keys():
-            x= sheet[row][8].value.split("_")
-            for l in range(0,len(x)):
-                if x[l] in txt :
-                    if (sheet[row][9].value)==dict_final[txt]:
-                        sheet[row][9].value="${"+txt+"}"
- 
+        
+        #if event_id or fo_request_id or nokia_request_id, replace with ${request_id}
+        if "TECHNICAL_PLAN" in sheet[row][8].value:
+            tech=technical_plan(sheet[row][8].value,sheet[row][9].value)       
+            sheet[row][9].value="${"+tech+"}"
+        if sheet[row][8].value=="EVENT_ID" and request_id==0:
+            request_id=sheet[row][9].value
+            print(request_id)
+            sheet[row][9].value="${"+"request_id"+"}"
+        elif "ID" in sheet[row][8].value and request_id==sheet[row][9].value:
+            sheet[row][9].value="${"+"request_id"+"}"
+        #date and time RF_REGEX=\\d{14}
+        elif "TIME" in sheet[row][8].value or "DATE" in sheet[row][8].value:
+            if len(re.findall(r'\d+',sheet[row][9].value)[0])==14:
+                sheet[row][9].value="RF_REGEX=\\\\d{14}"
+        if sub_id in sheet[row][9].value:
+            #print(re.search(sub_id,sheet[row][9].value).span())   
+            sheet[row][9].value=re.sub(sub_id,'${SUB_ID}',sheet[row][9].value)  
+        if circuit_Ref_id=="" and sheet[row][8].value=="CIRCUIT_REF_ID":
+            circuit_Ref_id=sheet[row][9].value
+            sheet[row][9].value="${CIRCUIT_REF_ID}"
+        elif circuit_Ref_id==sheet[row][9].value:
+            sheet[row][9].value=re.sub(circuit_Ref_id,'${CIRCUIT_REF_ID}',sheet[row][9].value)     
+        if "POOLNAME" in sheet[row][8].value or "LOOKUP" in sheet[row][8].value:
+            sheet[row][9].value="${CIRCLE_NAME}_${CITY_NAME}_${STD_CODE}_${OLT_NAME}"
+        if "ACCOUNT" in sheet[row][8].value and dict_final["ID"]==sheet[row][9].value:
+            sheet[row][9].value="${ACCOUNT_ID}"
+        #if "CRM_ORDER_ID" in sheet[row][8].value:
+        #    sheet[row][9].value="${EXTERNAL_ID}"
+        #if "TECHNICAL_PLAN" in dict_final.keys():
+        #    if dict_final["TECHNICAL_PLAN"] in sheet[row][9].value and tech_plan!="":
+        #        sheet[row][9].value=re.sub(dict_final["TECHNICAL_PLAN"],tech_plan,sheet[row][9].value)   
+        else:
+            for txt in dict_final.keys():
+                x= sheet[row][8].value.split("_")
+                for l in range(0,len(x)):
+                    if x[l] in txt :
+                        if str(sheet[row][9].value)==dict_final[txt]:
+                            if txt in my_variables.keys() and my_variables[txt]==sheet[row][9].value:
+                                sheet[row][9].value="${"+txt+"}"
+                            elif txt not in my_variables.keys():
+                                my_variables[txt]=sheet[row][9].value
+                                new_variables[txt]=sheet[row][9].value
+                                sheet[row][9].value="${"+txt+"}"
+            #if sheet[row][9].value not in my_variable:
+            #        my_variable.append(sheet[row][8].value,sheet[row][9].value)
+    #sheet.conditional_format(sheet[row][9],{'type':'2_color_scale'})
 #save the file
+print(new_variables)
+fout="my_new_variables.txt"
+fo=open(fout,"w")
+for k,v in new_variables.items():
+    fo.write(k+"="+"\""+v+"\""+'\n')
+fo.close()
+sheet.delete_rows(6,4)
 workbook.save(filename="output.xlsx")
+
+#olt_outport, olt_name,primary_secondary_corcuit_ref_id, correlation, replace requestid, eventtimedate,odf_name std_code, wherever 0124 , gurgaon,ftthown to access_type,circleid
+#fso_code
+#get one my_variables.py and add variables if already not included
